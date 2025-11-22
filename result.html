@@ -62,7 +62,7 @@
         Xでシェア！(Web Intent)
     </button>
         
-        <p style="margin-top: 30px;"><a href="card_maker.html">← 戻って作り直す</a></p>
+        <p style="margin-top: 30px;"><a href="#" onclick="clearAndGoBack()">← 戻って作り直す</a></p>
     </div>
 
     <script>
@@ -226,8 +226,17 @@
             }
             context.fillText(line, x, currentY);
         }
+
+		function clearAndGoBack() {
+    // 戻る前にセッションストレージのデータをクリア
+    sessionStorage.removeItem('cardName');
+    sessionStorage.removeItem('imageDataURL');
+    // card_maker.html に移動
+    window.location.href = 'index.html';
+}
     </script>
 </body>
 </html>
+
 
 
