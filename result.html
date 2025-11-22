@@ -159,7 +159,7 @@
     /**
      * カードの描画と画像アップロード・シェアボタン設定
      */
-    function renderCard(cardName, uploadedProfileImage) {
+    function renderCard(cardName, originalName, uploadedProfileImage) {
         // 1. ベース画像描画
         ctx.clearRect(0, 0, cardCanvas.width, cardCanvas.height);
         ctx.drawImage(cardBaseImage, 0, 0, cardCanvas.width, cardBaseImage.height);
@@ -302,6 +302,7 @@
 
 </body>
 </html>
+
 
 
 
