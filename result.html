@@ -200,24 +200,31 @@
          * X投稿ボタンにイベントを設定する関数
          */
         function setupShareButton(cardName, effectText) {
-            shareButton.addEventListener('click', () => {
-                // ここはGitHub Pagesで公開されたURLに置き換えてください
-                const appURL = encodeURIComponent(window.location.protocol + "//" + window.location.host + "/card_maker.html");
-                
-                const shareText = 
-                    `🎉 オリジナルカードが完成！\n` +
-                    `カード名: ${cardName}\n` +
-                    `効果: ${effectText.substring(0, 50)}...\n\n` + // 効果の冒頭50文字
-                    `画像を保存して、この投稿と一緒にシェアしよう！\n` +
-                    `#オリジナルカードメーカー\n\n` +
-                    `🔽 あなたのカードを作る 🔽\n` +
-                    `${decodeURIComponent(appURL)}`; // URLをそのまま含める
+    		if (!shareButton) return; // 念のため
 
-                const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}`;
-                
-                window.open(twitterUrl, '_blank');
-            });
-        }
+    		// 何度も addEventListener が増えないように、一旦リスナーをリセット
+    		shareButton.replaceWith(shareButton.cloneNode(true));
+    		const btn = document.getElementById('shareButton');
+
+    		btn.addEventListener('click', () => {
+        	// アプリのURL（GitHub Pages のURLをそのまま書くのが確実）
+        	const appURL = 'https://fever39risky-ux.github.io/card-maker-app/';
+
+        	const shareText =
+            	`🎉 オリジナルカードが完成！\n` +
+            	`カード名: ${cardName}\n` +
+            	`効果: ${effectText.substring(0, 50)}...\n\n` +
+            	`画像を保存して、この投稿と一緒にシェアしよう！\n` +
+            	`#オリジナルカードメーカー\n\n` +
+            	`🔽 あなたのカードを作る 🔽\n` +
+            	appURL;
+
+        	const twitterUrl =
+            	`https://x.com/intent/post?text=${encodeURIComponent(shareText)}`;
+
+        	window.open(twitterUrl, '_blank', 'noopener');
+    		});
+		}
 		
         /**
          * テキストを最大幅に合わせて自動で改行する関数
@@ -261,6 +268,7 @@
     </script>
 </body>
 </html>
+
 
 
 
