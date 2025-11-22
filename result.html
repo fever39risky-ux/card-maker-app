@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>オリジナルカードメーカー (結果)</title>
+    <title>ポケカ風サポートメーカー (結果)</title>
     <style>
         /* フォントファイルを読み込む設定 (card_maker.htmlと同じ) */
         @font-face {
@@ -70,7 +70,7 @@
         <svg viewBox="0 0 24 24" aria-hidden="true" style="fill: white; height: 1.2em; width: 1.2em; vertical-align: middle; margin-right: 5px;">
             <g><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.717 6.231zm-1.164 16.597h1.408L7.096 3.99H5.5L17.08 18.847z"></path></g>
         </svg>
-        Xでシェア！(Web Intent)
+        でシェア！
     </button>
 
     <p style="margin-top: 30px;">
@@ -247,12 +247,12 @@
         const appURL = 'https://fever39risky-ux.github.io/card-maker-app/';
 
         const shareText =
-            `🎉 オリジナルカードが完成！\n` +
+            `🎉 ポケカ風のサポートカードが簡単に作れちゃう！！\n` +
             `カード名: ${cardName}\n` +
             `効果: ${effectText.substring(0, 50)}...\n\n` +
             (imageUrl ? `🖼 カード画像はこちら👇\n${imageUrl}\n\n` : ``) +
             `🔽 あなたも作る 🔽\n${appURL}\n\n` +
-            `#オリジナルカードメーカー`;
+            `#ポケカ風サポートメーカー`;
 
         window.open(
             `https://x.com/intent/post?text=${encodeURIComponent(shareText)}`,
@@ -305,6 +305,7 @@
 
 </body>
 </html>
+
 
 
 
