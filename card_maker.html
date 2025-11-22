@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>サポートカードメーカー (入力)</title>
+    <style>
+        /* フォントファイルを読み込む設定 (変更なし) */
+        @font-face {
+            font-family: 'Mplus1-Bold';
+            src: url('fonts/Mplus1-Bold.otf') format('opentype');
+            font-weight: bold;
+            font-style: normal;
+        }
+
+        /* スタイルは簡略化しています */
+        body { font-family: sans-serif; text-align: center; margin-top: 50px; background-color: #f0f2f5; }
+        .container { max-width: 600px; margin: 0 auto; padding: 30px; background-color: white; border-radius: 10px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); }
+        input[type="file"], button, input[type="text"] { padding: 10px 15px; margin: 5px 0; border-radius: 5px; border: 1px solid #ccc; font-size: 16px; }
+        button { background-color: #d83d3d; color: white; cursor: pointer; border: none; transition: background-color 0.3s ease; }
+        button:hover { background-color: #b33232; }
+        .input-group { margin-bottom: 15px; text-align: left; padding: 0 20px; }
+        .input-group label { display: block; font-weight: bold; margin-bottom: 5px; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>🃏 サポートカードメーカー 🃏</h1>
+        <p class="info-text">画像とカード名を入力し、結果画面へ遷移します。</p>
+
+        <div class="input-group">
+            <label for="profileImageInput">1. あなたのプロフィール画像をアップロードしてください:</label>
+            <input type="file" id="profileImageInput" accept="image/*" style="width: 100%;">
+        </div>
+
+        <p>2. カードの情報を入力してください:</p>
+        <div class="input-group">
+            <label for="cardNameInput">カード名:</label>
+            <input type="text" id="cardNameInput" value="" placeholder="Xアカウント名を入力" style="width: 90%;">
+        </div>
+        
+        <button onclick="createCard()">結果画面へ移動！</button>
+    </div>
+
+    <script>
+        const profileImageInput = document.getElementById('profileImageInput');
+        const cardNameInput = document.getElementById('cardNameInput');
+
+        function createCard() {
+            const cardName = cardNameInput.value.trim();
+            const profileFile = profileImageInput.files[0];
+
+            // 1. バリデーションチェック
+            if (!profileFile) {
+                alert("プロフィール画像をアップロードしてください。");
+                return;
+            }
+
+            if (cardName === "") {
+                alert("（Xアカウント名）を入力してください。");
+                return;
+            }
+
+            // 2. 画像ファイルをData URLとして読み込む
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const imageDataURL = e.target.result;
+
+                // 3. データをブラウザのセッションストレージに一時保存
+                sessionStorage.setItem('cardName', cardName);
+                sessionStorage.setItem('imageDataURL', imageDataURL);
+                
+                // 4. 結果画面へ遷移
+                window.location.href = 'result.html';
+            };
+            
+            // ファイルを読み込み開始
+            reader.readAsDataURL(profileFile);
+        }
+    </script>
+
+</body>
+</html>
