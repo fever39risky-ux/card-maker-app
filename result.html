@@ -222,22 +222,21 @@
      * 画像を ConoHa サーバーにアップロードして URL を返す
      */
     async function uploadImageToServer(dataURL) {
-        const response = await fetch('https://gun-lido.com/cards/upload_card.php', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ image: dataURL })
-        });
+    const response = await fetch('https://gun-lido.com/cards/upload_card.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ image: dataURL })
+    });
+    const result = await response.json();
+    console.log("🚀 アップロード結果:", result);
 
-        if (!response.ok) {
-            throw new Error('HTTP error ' + response.status);
-        }
-
-        const json = await response.json();
-        if (!json.url) {
-            throw new Error('No url in response');
-        }
-        return json.url;
+    if (result.url) {
+        return result.url; // ← 画像URLを返す
+    } else {
+        throw new Error('アップロード失敗: URL未返却');
     }
+}
+
 
     /**
      * X投稿ボタンにイベントを設定
@@ -317,6 +316,7 @@
 
 </body>
 </html>
+
 
 
 
