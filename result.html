@@ -132,33 +132,29 @@
      * 結果画面の描画開始
      */
     function drawResultCard() {
-        const cardName     = sessionStorage.getItem('cardName');
-        const originalName = sessionStorage.getItem('originalName');
-        const imageDataURL = sessionStorage.getItem('imageDataURL');
+    const cardName = sessionStorage.getItem('cardName');
+    const originalName = sessionStorage.getItem('originalName') || cardName; // ←追加
+    const imageDataURL = sessionStorage.getItem('imageDataURL');
 
-        if (!cardName || !imageDataURL) {
-            alert("エラー: データが見つかりません。入力画面に戻ります。");
-            window.location.href = 'index.html'; // 元のカード作成画面
-            return;
-        }
-
-        const uploadedProfileImage = new Image();
-
-        uploadedProfileImage.onload = () => {
-            cardBaseImage.onload = () => {
-                cardCanvas.width  = cardBaseImage.width;
-                cardCanvas.height = cardBaseImage.height;
-
-                renderCard(cardName, uploadedProfileImage);
-            };
-            cardBaseImage.onerror = () => {
-                alert("テンプレート画像が読み込めません。ファイルパスを確認してください。");
-            };
-            cardBaseImage.src = TEMPLATE_PATH;
-        };
-
-        uploadedProfileImage.src = imageDataURL;
+    if (!cardName || !imageDataURL) {
+        alert("エラー: データが見つかりません。入力画面に戻ります。");
+        window.location.href = 'index.html';
+        return;
     }
+
+    const uploadedProfileImage = new Image();
+    uploadedProfileImage.onload = () => {
+        cardBaseImage.onload = () => {
+            cardCanvas.width  = cardBaseImage.width;
+            cardCanvas.height = cardBaseImage.height;
+
+            // ★ originalName も渡す
+            renderCard(cardName, originalName, uploadedProfileImage);
+        };
+        cardBaseImage.src = TEMPLATE_PATH;
+    };
+    uploadedProfileImage.src = imageDataURL;
+}
 
     /**
      * カードの描画と画像アップロード・シェアボタン設定
@@ -306,6 +302,7 @@
 
 </body>
 </html>
+
 
 
 
