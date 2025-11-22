@@ -12,9 +12,20 @@
             font-style: normal;
         }
 
-        /* スタイルは簡略化しています */
-        body { font-family: sans-serif; text-align: center; margin-top: 50px; background-color: #f0f2f5; }
-        .container { max-width: 900px; margin: 0 auto; padding: 30px; background-color: white; border-radius: 10px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); }
+        body {
+            font-family: sans-serif;
+            text-align: center;
+            margin-top: 50px;
+            background-color: #f0f2f5;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 30px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
         h1 { color: #333; }
         #cardCanvas {
             border: 1px solid #ddd;
@@ -38,236 +49,276 @@
 </head>
 <body onload="drawResultCard()">
 
-    <div class="container">
-        <h1>✅ 完成！✨</h1>
-        <p>画像はダウンロードボタンから保存ができます。</p>
-	<p>Xにポストしてみんなに見てもらおう！！</p>
-        
-        <canvas id="cardCanvas"></canvas>
-        <a id="downloadLink" href="#" download="my_original_card.png">画像をダウンロード</a>
+<div class="container">
+    <h1>✅ 完成！✨</h1>
+    <p>画像はダウンロードボタンから保存ができます。</p>
+    <p>Xにポストしてみんなに見てもらおう！！</p>
 
-	<button id="shareButton" style="
-        background-color: #000; 
-        color: white; 
-        padding: 10px 20px; 
-        border-radius: 5px; 
+    <canvas id="cardCanvas"></canvas>
+    <a id="downloadLink" href="#" download="my_original_card.png">画像をダウンロード</a>
+
+    <button id="shareButton" type="button" style="
+        background-color: #000;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 5px;
         font-size: 1.1em;
         margin-top: 15px;
         border: none;
         cursor: pointer;
     ">
         <svg viewBox="0 0 24 24" aria-hidden="true" style="fill: white; height: 1.2em; width: 1.2em; vertical-align: middle; margin-right: 5px;">
-            <g><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.717 6.231zm-1.164 16.597h1.408L7.096 3.99H5.50L17.08 18.847z"></path></g>
+            <g><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.717 6.231zm-1.164 16.597h1.408L7.096 3.99H5.5L17.08 18.847z"></path></g>
         </svg>
         Xでシェア！(Web Intent)
     </button>
-        
-        <p style="margin-top: 30px;"><a href="#" onclick="clearAndGoBack()">← 戻って作り直す</a></p>
-    </div>
 
-    <script>
-        const cardCanvas = document.getElementById('cardCanvas');
-        const ctx = cardCanvas.getContext('2d');
-        const downloadLink = document.getElementById('downloadLink');
-		const shareButton = document.getElementById('shareButton');
+    <p style="margin-top: 30px;">
+        <a href="#" onclick="clearAndGoBack()">← 戻って作り直す</a>
+    </p>
+</div>
 
-        // ★★★ ここを調整してください (card_maker.htmlと同じ設定) ★★★
-        const TEMPLATE_PATH = 'card_template/card_template.png';
-        
-        // プロフィール画像を合成する位置とサイズ
-        const profileImageX = 69;   
-        const profileImageY = 173;   
-        const profileImageWidth = 730; 
-        const profileImageHeight = 455; 
-        
-        // カード名描画設定
-        const NAME_Y = 145; // カード名Y座標
+<script>
+    const cardCanvas   = document.getElementById('cardCanvas');
+    const ctx          = cardCanvas.getContext('2d');
+    const downloadLink = document.getElementById('downloadLink');
+    const shareButton  = document.getElementById('shareButton');
 
-        // ★★★ カード効果の描画設定 ★★★
-        const EFFECT_X = 80;      // 効果テキストの開始X座標 
-        const EFFECT_Y_START = 750; // 効果テキストの開始Y座標 
-        const EFFECT_MAX_WIDTH = 720; // 効果テキストの最大幅
-        const EFFECT_LINE_HEIGHT = 22; // 効果テキストの行の高さ (フォントサイズ36pxに合わせて調整)
+    // ★ テンプレート画像のパス（result.html と同じ階層に card_template フォルダがある想定）
+    const TEMPLATE_PATH = 'card_template/card_template.png';
 
-        // ★★★ ランダムに抽出するテキストパターン ★★★
-        const EFFECT_PATTERNS = [
-            "自分の手札をすべて山札にもどして切る。\nその後、山札を6枚引く。自分のサイドの残り枚数が6枚なら、引く枚数は8枚になる。",
-            "自分の山札から「たねポケモン」「1進化ポケモン」「2進化ポケモン」を1枚ずつ選び、相手に見せて、手札に加える。\nそして山札を切る。",
-            "相手のベンチポケモンを1匹選び、バトルポケモンと入れ替える。",
-            "このカードは、自分の手札を1枚トラッシュしなければ使えない。\n自分の手札が6枚になるように、山札を引く。",
-            "自分の山札から進化ポケモンとエネルギーを1枚ずつ選び、相手に見せて、手札に加える。\nそして山札を切る。",
-	　　	"自分の手札をすべてトラッシュし、山札を7枚引く。",
-			"自分のポケモン全員のHPを、それぞれ「40」回復する。",
-			"自分の山札を3枚引く。",
-			"おたがいのプレイヤーは、それぞれ自分の手札をすべてウラにして切り、山札の下にもどす。\nその後、それぞれ自分のサイドの残り枚数ぶん、山札を引く。",
-			"自分の山札から「グッズ」と「ポケモンのどうぐ」を1枚ずつ選び、相手に見せて、手札に加える。\nそして山札を切る。",
-			"自分のベンチポケモンについているエネルギーを2個まで選び、バトルポケモンにつけ替える。",
-			"自分の山札からトレーナーズを1枚選び、相手に見せて、手札に加える。\nそして山札を切る。",
-			"おたがいのプレイヤーは、それぞれ手札をすべて山札にもどして切る。\nその後、それぞれ山札を4枚引く。",
-			"相手のポケモンを1匹選び、そのポケモンについている「ポケモンのどうぐ」と「特殊エネルギー」を1枚ずつトラッシュする。",
-			"自分の山札からたねポケモンを2枚まで、または進化ポケモンを1枚選び、相手に見せて、手札に加える。\nそして山札を切る。",
-			"このカードは、先攻プレイヤーの最初の番でも使える。\n\n自分の手札をすべてトラッシュし、山札を5枚引く。",
-			"自分のトラッシュからポケモン（「ルールを持つポケモン」をのぞく）と基本エネルギーを合計3枚まで選び、相手に見せて、手札に加える。",
-			"自分の山札から、それぞれちがうタイプの基本エネルギーを2枚まで選び、相手に見せて、どちらか1枚を手札に加え、残りのエネルギーを自分のポケモンにつける。\nそして山札を切る。",
-			"自分の山札からスタジアムとエネルギーを1枚ずつ選び、相手に見せて、手札に加える。\nそして山札を切る。",
-			"このカードは、自分の手札を1枚トラッシュしなければ使えない。\n\n相手のベンチポケモンの数ぶん、自分の山札を引く",
-    		];
-        // ★★★ ここまで調整してください ★★★
+    // プロフィール画像を合成する位置とサイズ
+    const profileImageX      = 69;
+    const profileImageY      = 173;
+    const profileImageWidth  = 730;
+    const profileImageHeight = 455;
 
-        let cardBaseImage = new Image();
+    // カード名描画設定
+    const NAME_Y = 145;
 
-        /**
-         * テンプレート画像を読み込み、ストレージからデータを取得して描画する
-         */
-        function drawResultCard() {
-            const cardName = sessionStorage.getItem('cardName');
-            const imageDataURL = sessionStorage.getItem('imageDataURL');
+    // 効果テキストの描画設定
+    const EFFECT_X          = 80;
+    const EFFECT_Y_START    = 750;
+    const EFFECT_MAX_WIDTH  = 720;
+    const EFFECT_LINE_HEIGHT = 22;
 
-            if (!cardName || !imageDataURL) {
-                alert("エラー: データが見つかりません。入力画面に戻ります。");
-                window.location.href = 'card_maker.html';
-                return;
-            }
+    // ランダムに抽出するテキストパターン
+    const EFFECT_PATTERNS = [
+        "自分の手札をすべて山札にもどして切る。\nその後、山札を6枚引く。自分のサイドの残り枚数が6枚なら、引く枚数は8枚になる。",
+        "自分の山札から「たねポケモン」「1進化ポケモン」「2進化ポケモン」を1枚ずつ選び、相手に見せて、手札に加える。\nそして山札を切る。",
+        "相手のベンチポケモンを1匹選び、バトルポケモンと入れ替える。",
+        "このカードは、自分の手札を1枚トラッシュしなければ使えない。\n自分の手札が6枚になるように、山札を引く。",
+        "自分の山札から進化ポケモンとエネルギーを1枚ずつ選び、相手に見せて、手札に加える。\nそして山札を切る。",
+        "自分の手札をすべてトラッシュし、山札を7枚引く。",
+        "自分のポケモン全員のHPを、それぞれ「40」回復する。",
+        "自分の山札を3枚引く。",
+        "おたがいのプレイヤーは、それぞれ自分の手札をすべてウラにして切り、山札の下にもどす。\nその後、それぞれ自分のサイドの残り枚数ぶん、山札を引く。",
+        "自分の山札から「グッズ」と「ポケモンのどうぐ」を1枚ずつ選び、相手に見せて、手札に加える。\nそして山札を切る。",
+        "自分のベンチポケモンについているエネルギーを2個まで選び、バトルポケモンにつけ替える。",
+        "自分の山札からトレーナーズを1枚選び、相手に見せて、手札に加える。\nそして山札を切る。",
+        "おたがいのプレイヤーは、それぞれ手札をすべて山札にもどして切る。\nその後、それぞれ山札を4枚引く。",
+        "相手のポケモンを1匹選び、そのポケモンについている「ポケモンのどうぐ」と「特殊エネルギー」を1枚ずつトラッシュする。",
+        "自分の山札からたねポケモンを2枚まで、または進化ポケモンを1枚選び、相手に見せて、手札に加える。\nそして山札を切る。",
+        "このカードは、先攻プレイヤーの最初の番でも使える。\n\n自分の手札をすべてトラッシュし、山札を5枚引く。",
+        "自分のトラッシュからポケモン（「ルールを持つポケモン」をのぞく）と基本エネルギーを合計3枚まで選び、相手に見せて、手札に加える。",
+        "自分の山札から、それぞれちがうタイプの基本エネルギーを2枚まで選び、相手に見せて、どちらか1枚を手札に加え、残りのエネルギーを自分のポケモンにつける。\nそして山札を切る。",
+        "自分の山札からスタジアムとエネルギーを1枚ずつ選び、相手に見せて、手札に加える。\nそして山札を切る。",
+        "このカードは、自分の手札を1枚トラッシュしなければ使えない。\n\n相手のベンチポケモンの数ぶん、自分の山札を引く。"
+    ];
 
-            // 1. プロフィール画像をロード
-            const uploadedProfileImage = new Image();
-            uploadedProfileImage.onload = () => {
-                // 2. ベース画像をロード
-                cardBaseImage.onload = () => {
-                    cardCanvas.width = cardBaseImage.width;
-                    cardCanvas.height = cardBaseImage.height;
-                    
-                    // 3. 全ての画像が揃ったら合成を実行
-                    renderCard(cardName, uploadedProfileImage);
-                };
-                cardBaseImage.onerror = () => {
-                    alert("テンプレート画像が読み込めません。ファイルパスを確認してください。");
-                };
-                cardBaseImage.src = TEMPLATE_PATH;
+    let cardBaseImage = new Image();
+
+    /**
+     * 結果画面の描画開始
+     */
+    function drawResultCard() {
+        const cardName     = sessionStorage.getItem('cardName');
+        const imageDataURL = sessionStorage.getItem('imageDataURL');
+
+        if (!cardName || !imageDataURL) {
+            alert("エラー: データが見つかりません。入力画面に戻ります。");
+            window.location.href = 'index.html'; // 元のカード作成画面
+            return;
+        }
+
+        const uploadedProfileImage = new Image();
+
+        uploadedProfileImage.onload = () => {
+            cardBaseImage.onload = () => {
+                cardCanvas.width  = cardBaseImage.width;
+                cardCanvas.height = cardBaseImage.height;
+
+                renderCard(cardName, uploadedProfileImage);
             };
-            uploadedProfileImage.src = imageDataURL;
+            cardBaseImage.onerror = () => {
+                alert("テンプレート画像が読み込めません。ファイルパスを確認してください。");
+            };
+            cardBaseImage.src = TEMPLATE_PATH;
+        };
+
+        uploadedProfileImage.src = imageDataURL;
+    }
+
+    /**
+     * カードの描画と画像アップロード・シェアボタン設定
+     */
+    function renderCard(cardName, uploadedProfileImage) {
+        // 1. ベース画像描画
+        ctx.clearRect(0, 0, cardCanvas.width, cardCanvas.height);
+        ctx.drawImage(cardBaseImage, 0, 0, cardCanvas.width, cardBaseImage.height);
+
+        // 2. プロフィール画像合成
+        ctx.drawImage(
+            uploadedProfileImage,
+            profileImageX,
+            profileImageY,
+            profileImageWidth,
+            profileImageHeight
+        );
+
+        // 3. カード名
+        if (cardName.trim() !== "") {
+            ctx.fillStyle = '#000';
+            ctx.font = 'bold 48px "Mplus1-Bold", sans-serif';
+            ctx.textAlign = 'left';
+            ctx.fillText(cardName, 80, NAME_Y);
         }
 
-        /**
-         * 最終的な合成処理
-         */
-        function renderCard(cardName, uploadedProfileImage) {
-            // キャンバスをクリアし、カードのベース画像を描画
-            ctx.clearRect(0, 0, cardCanvas.width, cardCanvas.height);
-            ctx.drawImage(cardBaseImage, 0, 0, cardCanvas.width, cardBaseImage.height);
+        // 4. ランダム効果テキスト
+        const randomIndex      = Math.floor(Math.random() * EFFECT_PATTERNS.length);
+        const randomEffectText = EFFECT_PATTERNS[randomIndex];
 
-            // アップロードされたプロフィール画像を合成
-            ctx.drawImage(
-                uploadedProfileImage,
-                profileImageX,
-                profileImageY,
-                profileImageWidth,
-                profileImageHeight
-            );
+        ctx.fillStyle = '#000';
+        ctx.font      = '18px sans-serif';
+        ctx.textAlign = 'left';
 
-            // ★★★ カード名描画ロジック ★★★
-            if (cardName.trim() !== "") {
-                ctx.fillStyle = '#000';
-                ctx.font = 'bold 48px "Mplus1-Bold", sans-serif'; 
-                ctx.textAlign = 'left';
-                ctx.fillText(cardName, 80, NAME_Y); 
+        wrapText(
+            ctx,
+            randomEffectText,
+            EFFECT_X,
+            EFFECT_Y_START,
+            EFFECT_MAX_WIDTH,
+            EFFECT_LINE_HEIGHT
+        );
+
+        // 5. ダウンロードリンク更新
+        const dataURL = cardCanvas.toDataURL('image/png');
+        downloadLink.href = dataURL;
+
+        // 6. サーバーに画像アップロード → URL取得 → シェアボタン設定
+        uploadImageToServer(dataURL)
+            .then(imageUrl => {
+                console.log('Uploaded image URL:', imageUrl);
+                setupShareButton(cardName, randomEffectText, imageUrl);
+            })
+            .catch(err => {
+                console.error('Upload failed:', err);
+                // 画像URLなしでもテキストだけでシェアできるようにする
+                setupShareButton(cardName, randomEffectText, null);
+            });
+    }
+
+    /**
+     * 画像を ConoHa サーバーにアップロードして URL を返す
+     */
+    async function uploadImageToServer(dataURL) {
+        const response = await fetch('https://gun-lido.com/cards/upload_card.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ image: dataURL })
+        });
+
+        if (!response.ok) {
+            throw new Error('HTTP error ' + response.status);
+        }
+
+        const json = await response.json();
+        if (!json.url) {
+            throw new Error('No url in response');
+        }
+        return json.url;
+    }
+
+    /**
+     * X投稿ボタンにイベントを設定
+     */
+    function setupShareButton(cardName, effectText, imageUrl) {
+        // 既存のイベントをリセット（同じボタンに何度も付かないように）
+        shareButton.replaceWith(shareButton.cloneNode(true));
+        const btn = document.getElementById('shareButton');
+
+        btn.addEventListener('click', () => {
+            const appURL = 'https://fever39risky-ux.github.io/card-maker-app/'; // 必要なら独自ドメインに変更
+
+            let shareText =
+                `🎉 オリジナルカードが完成！\n` +
+                `カード名: ${cardName}\n` +
+                `効果: ${effectText.substring(0, 50)}...\n\n`;
+
+            if (imageUrl) {
+                shareText += `🖼 カード画像はこちら👇\n${imageUrl}\n\n`;
+            } else {
+                shareText += `🖼 カード画像を保存して、この投稿に添付してね！\n\n`;
             }
-            // ★★★ ここまでカード名描画ロジック ★★★
 
-            // ★★★ 追加: カード効果のランダム抽出と描画 ★★★
-            const randomIndex = Math.floor(Math.random() * EFFECT_PATTERNS.length);
-            const randomEffectText = EFFECT_PATTERNS[randomIndex];
+            shareText +=
+                `🔽 あなたも作る 🔽\n` +
+                `${appURL}\n\n` +
+                `#オリジナルカードメーカー`;
 
-            ctx.fillStyle = '#000'; 
-            ctx.font = '18px sans-serif'; 
-            ctx.textAlign = 'left'; 
+            const twitterUrl =
+                `https://x.com/intent/post?text=${encodeURIComponent(shareText)}`;
 
-            wrapText(
-                ctx,
-                randomEffectText,
-                EFFECT_X,
-                EFFECT_Y_START,
-                EFFECT_MAX_WIDTH,
-                EFFECT_LINE_HEIGHT
-            );
+            window.open(twitterUrl, '_blank', 'noopener');
+        });
+    }
 
-            // ダウンロードリンクを更新
-            const dataURL = cardCanvas.toDataURL('image/png');
-            downloadLink.href = dataURL;
-        }
+    /**
+     * テキストを最大幅に合わせて自動改行
+     */
+    function wrapText(context, text, x, y, maxWidth, lineHeight) {
+        const chars = text.split('');
+        let line    = '';
+        let currentY = y;
 
-		/**
-         * X投稿ボタンにイベントを設定する関数
-         */
-        function setupShareButton(cardName, effectText) {
-    		if (!shareButton) return; // 念のため
+        for (let i = 0; i < chars.length; i++) {
+            const char = chars[i];
 
-    		// 何度も addEventListener が増えないように、一旦リスナーをリセット
-    		shareButton.replaceWith(shareButton.cloneNode(true));
-    		const btn = document.getElementById('shareButton');
-
-    		btn.addEventListener('click', () => {
-        	// アプリのURL（GitHub Pages のURLをそのまま書くのが確実）
-        	const appURL = 'https://fever39risky-ux.github.io/card-maker-app/';
-
-        	const shareText =
-            	`🎉 オリジナルカードが完成！\n` +
-            	`カード名: ${cardName}\n` +
-            	`効果: ${effectText.substring(0, 50)}...\n\n` +
-            	`画像を保存して、この投稿と一緒にシェアしよう！\n` +
-            	`#オリジナルカードメーカー\n\n` +
-            	`🔽 あなたのカードを作る 🔽\n` +
-            	appURL;
-
-        	const twitterUrl =
-            	`https://x.com/intent/post?text=${encodeURIComponent(shareText)}`;
-
-        	window.open(twitterUrl, '_blank', 'noopener');
-    		});
-		}
-		
-        /**
-         * テキストを最大幅に合わせて自動で改行する関数
-         */
-        function wrapText(context, text, x, y, maxWidth, lineHeight) {
-            const chars = text.split('');
-            let line = '';
-            let currentY = y;
-            
-            for (let i = 0; i < chars.length; i++) {
-                const char = chars[i];
-                
-                if (char === '\n') {
-                    context.fillText(line, x, currentY);
-                    line = '';
-                    currentY += lineHeight;
-                    continue;
-                }
-                
-                let testLine = line + char;
-                const testWidth = context.measureText(testLine).width;
-                
-                if (testWidth > maxWidth) {
-                    context.fillText(line, x, currentY);
-                    line = char;
-                    currentY += lineHeight;
-                } else {
-                    line = testLine;
-                }
+            if (char === '\n') {
+                context.fillText(line, x, currentY);
+                line = '';
+                currentY += lineHeight;
+                continue;
             }
-            context.fillText(line, x, currentY);
-        }
 
-		function clearAndGoBack() {
-    // 戻る前にセッションストレージのデータをクリア
-    sessionStorage.removeItem('cardName');
-    sessionStorage.removeItem('imageDataURL');
-    // card_maker.html に移動
-    window.location.href = 'index.html';
-}
-    </script>
+            const testLine  = line + char;
+            const testWidth = context.measureText(testLine).width;
+
+            if (testWidth > maxWidth) {
+                context.fillText(line, x, currentY);
+                line = char;
+                currentY += lineHeight;
+            } else {
+                line = testLine;
+            }
+        }
+        context.fillText(line, x, currentY);
+    }
+
+    /**
+     * 戻って作り直す
+     */
+    function clearAndGoBack() {
+        sessionStorage.removeItem('cardName');
+        sessionStorage.removeItem('imageDataURL');
+        window.location.href = 'index.html'; // カード作成画面（index.html にしている前提）
+    }
+</script>
+
 </body>
 </html>
+
+
 
 
 
