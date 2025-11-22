@@ -155,21 +155,35 @@
         }
 
         // ランダム効果テキスト
-        const randomIndex = Math.floor(Math.random() * EFFECT_PATTERNS.length);
-        randomEffectText = EFFECT_PATTERNS[randomIndex];
+        // ランダム効果テキスト
+const randomIndex      = Math.floor(Math.random() * EFFECT_PATTERNS.length);
+const randomEffectText = EFFECT_PATTERNS[randomIndex];
 
-        ctx.fillStyle = '#000';
-        ctx.font = '24px sans-serif';
-        ctx.textAlign = 'left';
+// ✨ 自動で文字サイズを調整する処理を追加
+const baseFontSize = 18; // 最初の文字サイズ
+const maxEffectHeight = 160; // 効果欄の高さ（実際の見た目に合わせて調整可）
+const adjustedFontSize = adjustFontSizeToFit(
+    ctx,
+    randomEffectText,
+    EFFECT_MAX_WIDTH,
+    maxEffectHeight,
+    baseFontSize
+);
 
-        wrapText(
-            ctx,
-            randomEffectText,
-            EFFECT_X,
-            EFFECT_Y_START,
-            EFFECT_MAX_WIDTH,
-            EFFECT_LINE_HEIGHT
-        );
+ctx.fillStyle = '#000';
+ctx.font      = `${adjustedFontSize}px sans-serif`; // ←調整後の文字サイズを反映
+ctx.textAlign = 'left';
+
+// 🎯 wrapTextで描画実行
+wrapText(
+    ctx,
+    randomEffectText,
+    EFFECT_X,
+    EFFECT_Y_START,
+    EFFECT_MAX_WIDTH,
+    EFFECT_LINE_HEIGHT
+);
+
 
         // ダウンロードリンク更新
         const dataURL = cardCanvas.toDataURL('image/png');
@@ -223,6 +237,40 @@
         };
     }
 
+    // 🔽 効果テキストの文字サイズを自動調整する関数
+function adjustFontSizeToFit(ctx, text, maxWidth, maxHeight, baseFontSize) {
+    let fontSize = baseFontSize;
+
+    ctx.font = `${fontSize}px sans-serif`;
+    const lines = wrapTextToLines(ctx, text, maxWidth);
+
+    while ((lines.length * (fontSize + 4)) > maxHeight && fontSize > 10) {
+        fontSize -= 2;
+        ctx.font = `${fontSize}px sans-serif`;
+    }
+    return fontSize;
+}
+
+// 🔽 wrapTextToLines関数 -- 改行前提で行配列に分割
+function wrapTextToLines(ctx, text, maxWidth) {
+    const words = text.split('');
+    let lines = [];
+    let line = '';
+
+    for (let i = 0; i < words.length; i++) {
+        let testLine = line + words[i];
+        if (ctx.measureText(testLine).width > maxWidth && i > 0) {
+            lines.push(line);
+            line = words[i];
+        } else {
+            line = testLine;
+        }
+    }
+    lines.push(line);
+    return lines;
+}
+
+
     // テキスト自動改行
     function wrapText(context, text, x, y, maxWidth, lineHeight) {
         const chars = text.split('');
@@ -263,6 +311,7 @@
 
 </body>
 </html>
+
 
 
 
