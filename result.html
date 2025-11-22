@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <title>ポケカ風サポートメーカー (結果)</title>
     <style>
-        /* フォントファイルを読み込む設定 (card_maker.htmlと同じ) */
         @font-face {
             font-family: 'Mplus1-Bold';
             src: url('fonts/Mplus1-Bold.otf') format('opentype');
@@ -45,6 +44,16 @@
             font-size: 1.1em;
             display: inline-block;
         }
+        #shareButton {
+            background-color: #000;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-size: 1.1em;
+            margin-top: 15px;
+            border: none;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body onload="drawResultCard()">
@@ -57,20 +66,12 @@
     <canvas id="cardCanvas"></canvas>
     <a id="downloadLink" href="#" download="my_original_card.png">画像をダウンロード</a>
 
-    <button id="shareButton" type="button" style="
-        background-color: #000;
-        color: white;
-        padding: 10px 20px;
-        border-radius: 5px;
-        font-size: 1.1em;
-        margin-top: 15px;
-        border: none;
-        cursor: pointer;
-    ">
-        <svg viewBox="0 0 24 24" aria-hidden="true" style="fill: white; height: 1.2em; width: 1.2em; vertical-align: middle; margin-right: 5px;">
+    <button id="shareButton" type="button">
+        <svg viewBox="0 0 24 24" aria-hidden="true"
+             style="fill: white; height: 1.2em; width: 1.2em; vertical-align: middle; margin-right: 5px;">
             <g><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.717 6.231zm-1.164 16.597h1.408L7.096 3.99H5.5L17.08 18.847z"></path></g>
         </svg>
-        でシェア！
+        Xでシェア！
     </button>
 
     <p style="margin-top: 30px;">
@@ -84,25 +85,25 @@
     const downloadLink = document.getElementById('downloadLink');
     const shareButton  = document.getElementById('shareButton');
 
-    // ★ テンプレート画像のパス（result.html と同じ階層に card_template フォルダがある想定）
+    // ✅ グローバルにカード名を持たせる（投稿文でも使う）
+    let cardName      = null;   // 加工後（○○の△△）
+    let originalName  = null;   // 加工前
+    let randomEffectText = '';  // 効果テキスト（シェア文にも使う）
+
     const TEMPLATE_PATH = 'card_template/card_template.png';
 
-    // プロフィール画像を合成する位置とサイズ
     const profileImageX      = 69;
     const profileImageY      = 173;
     const profileImageWidth  = 730;
     const profileImageHeight = 455;
 
-    // カード名描画設定
     const NAME_Y = 145;
 
-    // 効果テキストの描画設定
-    const EFFECT_X          = 80;
-    const EFFECT_Y_START    = 750;
-    const EFFECT_MAX_WIDTH  = 720;
+    const EFFECT_X           = 80;
+    const EFFECT_Y_START     = 750;
+    const EFFECT_MAX_WIDTH   = 720;
     const EFFECT_LINE_HEIGHT = 22;
 
-    // ランダムに抽出するテキストパターン
     const EFFECT_PATTERNS = [
         "自分の手札をすべて山札にもどして切る。\nその後、山札を6枚引く。自分のサイドの残り枚数が6枚なら、引く枚数は8枚になる。",
         "自分の山札から「たねポケモン」「1進化ポケモン」「2進化ポケモン」を1枚ずつ選び、相手に見せて、手札に加える。\nそして山札を切る。",
@@ -128,57 +129,58 @@
 
     let cardBaseImage = new Image();
 
-    /**
-     * 結果画面の描画開始
-     */
+    // ① 結果画面を描画開始
     function drawResultCard() {
-    const cardName = sessionStorage.getItem('cardName');
-    const originalName = sessionStorage.getItem('originalName') || cardName; // ←追加
-    const imageDataURL = sessionStorage.getItem('imageDataURL');
+        cardName     = sessionStorage.getItem('cardName');
+        originalName = sessionStorage.getItem('originalName') || cardName;
+        const imageDataURL = sessionStorage.getItem('imageDataURL');
 
-    if (!cardName || !imageDataURL) {
-        alert("エラー: データが見つかりません。入力画面に戻ります。");
-        window.location.href = 'index.html';
-        return;
-    }
+        if (!cardName || !imageDataURL) {
+            alert("エラー: データが見つかりません。入力画面に戻ります。");
+            window.location.href = 'index.html';
+            return;
+        }
 
-    const uploadedProfileImage = new Image();
-    uploadedProfileImage.onload = () => {
-        cardBaseImage.onload = () => {
-            cardCanvas.width  = cardBaseImage.width;
-            cardCanvas.height = cardBaseImage.height;
-
-            // ★ originalName も渡す
-            renderCard(cardName, originalName, uploadedProfileImage);
+        const uploadedProfileImage = new Image();
+        uploadedProfileImage.onload = () => {
+            cardBaseImage.onload = () => {
+                cardCanvas.width  = cardBaseImage.width;
+                cardCanvas.height = cardBaseImage.height;
+                renderCard(uploadedProfileImage);
+            };
+            cardBaseImage.src = TEMPLATE_PATH;
         };
-        cardBaseImage.src = TEMPLATE_PATH;
-    };
-    uploadedProfileImage.src = imageDataURL;
-}
-
-    /**
-     * カードの描画と画像アップロード・シェアボタン設定
-     */
-    function renderCard(cardName, originalName, uploadedProfileImage) {
-    ctx.clearRect(0, 0, cardCanvas.width, cardCanvas.height);
-    ctx.drawImage(cardBaseImage, 0, 0, cardCanvas.width, cardBaseImage.height);
-
-    // 🔥 ここで画像を描画（uploadedProfileImage が正しい Image オブジェクトである必要）
-    ctx.drawImage(uploadedProfileImage, profileImageX, profileImageY, profileImageWidth, profileImageHeight);
-
-    // カード名描画
-    if (cardName.trim() !== "") {
-        ctx.fillStyle = '#000';
-        ctx.font = 'bold 48px "Mplus1-Bold", sans-serif';
-        ctx.fillText(cardName, 80, NAME_Y);
+        uploadedProfileImage.src = imageDataURL;
     }
 
-        // 4. ランダム効果テキスト
-        const randomIndex      = Math.floor(Math.random() * EFFECT_PATTERNS.length);
-        const randomEffectText = EFFECT_PATTERNS[randomIndex];
+    // ② カードを描画し、サーバーに画像アップロード & シェアボタン設定
+    function renderCard(uploadedProfileImage) {
+        ctx.clearRect(0, 0, cardCanvas.width, cardCanvas.height);
+        ctx.drawImage(cardBaseImage, 0, 0, cardCanvas.width, cardBaseImage.height);
+
+        // プロフィール画像
+        ctx.drawImage(
+            uploadedProfileImage,
+            profileImageX,
+            profileImageY,
+            profileImageWidth,
+            profileImageHeight
+        );
+
+        // カード名
+        if (cardName && cardName.trim() !== "") {
+            ctx.fillStyle = '#000';
+            ctx.font = 'bold 48px "Mplus1-Bold", sans-serif';
+            ctx.textAlign = 'left';
+            ctx.fillText(cardName, 80, NAME_Y);
+        }
+
+        // ランダム効果テキスト
+        const randomIndex = Math.floor(Math.random() * EFFECT_PATTERNS.length);
+        randomEffectText = EFFECT_PATTERNS[randomIndex];
 
         ctx.fillStyle = '#000';
-        ctx.font      = '18px sans-serif';
+        ctx.font = '18px sans-serif';
         ctx.textAlign = 'left';
 
         wrapText(
@@ -190,72 +192,63 @@
             EFFECT_LINE_HEIGHT
         );
 
-        // 5. ダウンロードリンク更新
+        // ダウンロードリンク更新
         const dataURL = cardCanvas.toDataURL('image/png');
         downloadLink.href = dataURL;
 
+        // サーバーにアップロードして画像URLを取得 → その後でシェアボタンを設定
         uploadImageToServer(dataURL)
             .then(imageUrl => {
                 console.log('Uploaded image URL:', imageUrl);
-            // ★ originalName も渡す
-            setupShareButton(cardName, originalName, randomEffectText, imageUrl);
+                setupShareButton(imageUrl);
             })
             .catch(err => {
                 console.error('Upload failed:', err);
-                setupShareButton(cardName, originalName, randomEffectText, null);
+                setupShareButton(null); // 失敗してもテキストだけシェア
             });
     }
 
-
-    /**
-     * 画像を ConoHa サーバーにアップロードして URL を返す
-     */
+    // ③ ConoHa サーバーにアップロードして画像URLを返す
     async function uploadImageToServer(dataURL) {
-    const response = await fetch('https://gun-lido.com/cards/upload_card.php', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ image: dataURL })
-    });
-    const result = await response.json();
-    console.log("🚀 アップロード結果:", result);
+        const response = await fetch('https://gun-lido.com/cards/upload_card.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ image: dataURL })
+        });
+        const result = await response.json();
+        console.log("🚀 アップロード結果:", result);
 
-    if (result.url) {
-        return result.url; // ← 画像URLを返す
-    } else {
-        throw new Error('アップロード失敗: URL未返却');
+        if (result.url) {
+            return result.url;
+        } else {
+            throw new Error('アップロード失敗: URL未返却');
+        }
     }
-}
 
+    // ④ X投稿ボタンの挙動
+    function setupShareButton(imageUrl) {
+        shareButton.onclick = () => {
+            const appURL = 'https://fever39risky-ux.github.io/card-maker-app/';
 
-    /**
-     * X投稿ボタンにイベントを設定
-     */
-    function setupShareButton(cardName, originalName, effectText, imageUrl) {
-    shareButton.onclick = () => {
-        const appURL = 'https://fever39risky-ux.github.io/card-maker-app/';
+            const shareText =
+                `🎉 ポケカ風のサポートカードが簡単に作れちゃう！！\n` +
+                `${originalName}さんがサポートカードになったら？\n\n` +
+                `『 カード名: ${cardName} 』\n` +
+                (imageUrl ? `🖼 カード画像をみてみる👇\n${imageUrl}\n\n` : ``) +
+                `🔽 あなたも作る 🔽\n${appURL}\n\n` +
+                `#ポケカ風サポートメーカー`;
 
-        const shareText =
-            `🎉 ポケカ風のサポートカードが簡単に作れちゃう！！\n` +
-            `${originalName}さんがサポートカードになったら？\n\n` +
-            `『 カード名: ${cardName} 』\n` +
-            (imageUrl ? `🖼 カード画像をみてみる👇\n${imageUrl}\n\n` : ``) +
-            `🔽 あなたも作る 🔽\n${appURL}\n\n` +
-            `#ポケカ風サポートメーカー`;
+            const twitterUrl =
+                `https://x.com/intent/post?text=${encodeURIComponent(shareText)}`;
 
-        const twitterUrl =
-            `https://x.com/intent/post?text=${encodeURIComponent(shareText)}`;
+            window.open(twitterUrl, '_blank', 'noopener');
+        };
+    }
 
-        window.open(twitterUrl, '_blank', 'noopener');
-    };
-}
-
-
-    /**
-     * テキストを最大幅に合わせて自動改行
-     */
+    // テキスト自動改行
     function wrapText(context, text, x, y, maxWidth, lineHeight) {
         const chars = text.split('');
-        let line    = '';
+        let line = '';
         let currentY = y;
 
         for (let i = 0; i < chars.length; i++) {
@@ -268,7 +261,7 @@
                 continue;
             }
 
-            const testLine  = line + char;
+            const testLine = line + char;
             const testWidth = context.measureText(testLine).width;
 
             if (testWidth > maxWidth) {
@@ -282,13 +275,11 @@
         context.fillText(line, x, currentY);
     }
 
-    /**
-     * 戻って作り直す
-     */
     function clearAndGoBack() {
         sessionStorage.removeItem('cardName');
+        sessionStorage.removeItem('originalName');
         sessionStorage.removeItem('imageDataURL');
-        window.location.href = 'index.html'; // カード作成画面（index.html にしている前提）
+        window.location.href = 'index.html';
     }
 </script>
 
