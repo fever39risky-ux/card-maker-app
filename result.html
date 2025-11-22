@@ -174,15 +174,19 @@ ctx.fillStyle = '#000';
 ctx.font      = `${adjustedFontSize}px sans-serif`; // ←調整後の文字サイズを反映
 ctx.textAlign = 'left';
 
-// 🎯 wrapTextで描画実行
-wrapText(
+// 行の高さはフォントサイズにちょい足し（見た目調整用）
+const lineHeight = adjustedFontSize + 4;
+
+// 🎯 30文字目安 ＋ 横幅制限で改行する関数を使用
+wrapTextImproved(
     ctx,
     randomEffectText,
     EFFECT_X,
     EFFECT_Y_START,
     EFFECT_MAX_WIDTH,
-    EFFECT_LINE_HEIGHT
+    lineHeight
 );
+
 
 
         // ダウンロードリンク更新
@@ -251,55 +255,49 @@ function adjustFontSizeToFit(ctx, text, maxWidth, maxHeight, baseFontSize) {
     return fontSize;
 }
 
-// 🔽 wrapTextToLines関数 -- 改行前提で行配列に分割
 function wrapTextToLines(ctx, text, maxWidth) {
-    const words = text.split('');
+    const words = text.split(/(\s+)/); // ←空白も保持して分割
     let lines = [];
     let line = '';
 
-    for (let i = 0; i < words.length; i++) {
-        let testLine = line + words[i];
-        if (ctx.measureText(testLine).width > maxWidth && i > 0) {
+    words.forEach(word => {
+        const testLine = line + word;
+        if (ctx.measureText(testLine).width > maxWidth && line !== '') {
             lines.push(line);
-            line = words[i];
+            line = word;
         } else {
             line = testLine;
         }
-    }
+    });
     lines.push(line);
     return lines;
 }
 
 
+
     // テキスト自動改行
-    function wrapText(context, text, x, y, maxWidth, lineHeight) {
-        const chars = text.split('');
-        let line = '';
-        let currentY = y;
+    function wrapTextImproved(ctx, text, x, y, maxWidth, lineHeight) {
+    const idealCharsPerLine = 30; // ←調整可能（28〜32が見やすい）
+    const words = text.split('');
+    let line = '';
+    let currentY = y;
 
-        for (let i = 0; i < chars.length; i++) {
-            const char = chars[i];
+    for (let i = 0; i < words.length; i++) {
+        const testLine = line + words[i];
+        const testWidth = ctx.measureText(testLine).width;
 
-            if (char === '\n') {
-                context.fillText(line, x, currentY);
-                line = '';
-                currentY += lineHeight;
-                continue;
-            }
-
-            const testLine = line + char;
-            const testWidth = context.measureText(testLine).width;
-
-            if (testWidth > maxWidth) {
-                context.fillText(line, x, currentY);
-                line = char;
-                currentY += lineHeight;
-            } else {
-                line = testLine;
-            }
+        // 🔥「横幅には収まる」かつ「30文字を超えたら」いったん改行
+        if (testWidth > maxWidth || testLine.length > idealCharsPerLine) {
+            ctx.fillText(line, x, currentY);
+            line = words[i];
+            currentY += lineHeight;
+        } else {
+            line = testLine;
         }
-        context.fillText(line, x, currentY);
     }
+    ctx.fillText(line, x, currentY);
+}
+
 
     function clearAndGoBack() {
         sessionStorage.removeItem('cardName');
@@ -311,10 +309,3 @@ function wrapTextToLines(ctx, text, maxWidth) {
 
 </body>
 </html>
-
-
-
-
-
-
-
