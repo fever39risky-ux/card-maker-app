@@ -58,44 +58,91 @@
     </div>
 
     <script>
-        const profileImageInput = document.getElementById('profileImageInput');
-        const cardNameInput = document.getElementById('cardNameInput');
+    const profileImageInput = document.getElementById('profileImageInput');
+    const cardNameInput = document.getElementById('cardNameInput');
 
-        function createCard() {
-            const cardName = cardNameInput.value.trim();
-            const profileFile = profileImageInput.files[0];
+    // ▼ ランダムで付与する「の〇〇」候補
+    const NAME_SUFFIXES = [
+        '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',       // ← 無印（付けない）を増やすほど出やすくなる
+        'の指令',
+        'の決心',
+        'の闘志',
+        'の一手',
+        'のいたずら',
+        'の取引',
+        'の思いやり',
+        'の筋書き',
+        'の研究',
+        'の冒険',
+        'の盛り上げ',
+        'のシナリオ',
+        'の気迫',
+        'の手際',
+        'の執念',
+        'の秘技',
+        'のお世話',
+        'の確信',
+        'の機転',
+        'のアピール',
+        'のまなざし',
+        'のたくらみ',
+        'のまごころ',
+        'のしたっぱ',
+        'の仲間たち',
+        'のカリスマ',
+        'の招待',
+        'の手助け',
+    ];
 
-            // 1. バリデーションチェック
-            if (!profileFile) {
-                alert("プロフィール画像をアップロードしてください。");
-                return;
-            }
+    // ▼ 入力された名前からランダムでカード名を生成
+    function generateCardName(baseName) {
+        const trimmedName = baseName.trim();
+        if (!trimmedName) return '';
 
-            if (cardName === "") {
-                alert("（Xアカウント名）を入力してください。");
-                return;
-            }
+        const suffix = NAME_SUFFIXES[Math.floor(Math.random() * NAME_SUFFIXES.length)];
+        return trimmedName + suffix;
+    }
 
-            // 2. 画像ファイルをData URLとして読み込む
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                const imageDataURL = e.target.result;
+    function createCard() {
+        const baseName = cardNameInput.value.trim();
+        const profileFile = profileImageInput.files[0];
 
-                // 3. データをブラウザのセッションストレージに一時保存
-                sessionStorage.setItem('cardName', cardName);
-                sessionStorage.setItem('imageDataURL', imageDataURL);
-                
-                // 4. 結果画面へ遷移
-                window.location.href = 'result.html';
-            };
-            
-            // ファイルを読み込み開始
-            reader.readAsDataURL(profileFile);
+        // 1. バリデーションチェック
+        if (!profileFile) {
+            alert("プロフィール画像をアップロードしてください。");
+            return;
         }
-    </script>
+
+        if (baseName === "") {
+            alert("（Xアカウント名）を入力してください。");
+            return;
+        }
+
+        // 2. 画像ファイルをData URLとして読み込む
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const imageDataURL = e.target.result;
+
+            // ★ ここでカード名を加工して保存！
+            const finalCardName = generateCardName(baseName);
+
+            // 3. データをブラウザのセッションストレージに一時保存
+            sessionStorage.setItem('cardName', finalCardName);
+            sessionStorage.setItem('imageDataURL', imageDataURL);
+            
+            // 4. 結果画面へ遷移
+            window.location.href = 'result.html';
+        };
+        
+        // ファイルを読み込み開始
+        reader.readAsDataURL(profileFile);
+    }
+</script>
+
 
 </body>
 </html>
+
 
 
 
