@@ -160,26 +160,18 @@
      * カードの描画と画像アップロード・シェアボタン設定
      */
     function renderCard(cardName, originalName, uploadedProfileImage) {
-        // 1. ベース画像描画
-        ctx.clearRect(0, 0, cardCanvas.width, cardCanvas.height);
-        ctx.drawImage(cardBaseImage, 0, 0, cardCanvas.width, cardBaseImage.height);
+    ctx.clearRect(0, 0, cardCanvas.width, cardCanvas.height);
+    ctx.drawImage(cardBaseImage, 0, 0, cardCanvas.width, cardBaseImage.height);
 
-        // 2. プロフィール画像合成
-        ctx.drawImage(
-            uploadedProfileImage,
-            profileImageX,
-            profileImageY,
-            profileImageWidth,
-            profileImageHeight
-        );
+    // 🔥 ここで画像を描画（uploadedProfileImage が正しい Image オブジェクトである必要）
+    ctx.drawImage(uploadedProfileImage, profileImageX, profileImageY, profileImageWidth, profileImageHeight);
 
-        // 3. カード名
-        if (cardName.trim() !== "") {
-            ctx.fillStyle = '#000';
-            ctx.font = 'bold 48px "Mplus1-Bold", sans-serif';
-            ctx.textAlign = 'left';
-            ctx.fillText(cardName, 80, NAME_Y);
-        }
+    // カード名描画
+    if (cardName.trim() !== "") {
+        ctx.fillStyle = '#000';
+        ctx.font = 'bold 48px "Mplus1-Bold", sans-serif';
+        ctx.fillText(cardName, 80, NAME_Y);
+    }
 
         // 4. ランダム効果テキスト
         const randomIndex      = Math.floor(Math.random() * EFFECT_PATTERNS.length);
@@ -302,22 +294,3 @@
 
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
