@@ -133,6 +133,7 @@
      */
     function drawResultCard() {
         const cardName     = sessionStorage.getItem('cardName');
+        const originalName = sessionStorage.getItem('originalName');
         const imageDataURL = sessionStorage.getItem('imageDataURL');
 
         if (!cardName || !imageDataURL) {
@@ -248,7 +249,7 @@
 
         const shareText =
             `🎉 ポケカ風のサポートカードが簡単に作れちゃう！！\n` +
-            `あなたがサポートカードになったら？\n\n` +
+            `${originalName}さんがサポートカードになったら？\n\n` +
             `『 カード名: ${cardName} 』\n` +
             (imageUrl ? `🖼 カード画像をみてみる👇\n${imageUrl}\n\n` : ``) +
             `🔽 あなたも作る 🔽\n${appURL}\n\n` +
@@ -305,6 +306,7 @@
 
 </body>
 </html>
+
 
 
 
