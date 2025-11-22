@@ -79,6 +79,7 @@
     </p>
 </div>
 
+<!-- 効果テキストの一覧（EFFECT_PATTERNS） -->
 <script src="effects.js"></script>
 
 <script>
@@ -87,10 +88,10 @@
     const downloadLink = document.getElementById('downloadLink');
     const shareButton  = document.getElementById('shareButton');
 
-    // ✅ グローバルにカード名を持たせる（投稿文でも使う）
-    let cardName      = null;   // 加工後（○○の△△）
-    let originalName  = null;   // 加工前
-    let randomEffectText = '';  // 効果テキスト（シェア文にも使う）
+    // ✅ グローバルにカード名などを持たせる
+    let cardName         = null; // 加工後（○○の△△）
+    let originalName     = null; // 加工前
+    let randomEffectText = '';   // 効果テキスト（必要ならシェア文にも使える）
 
     const TEMPLATE_PATH = 'card_template/card_template.png';
 
@@ -104,7 +105,7 @@
     const EFFECT_X           = 80;
     const EFFECT_Y_START     = 750;
     const EFFECT_MAX_WIDTH   = 720;
-    const EFFECT_LINE_HEIGHT = 36;
+    const EFFECT_LINE_HEIGHT = 36; // 使っても使わなくてもOK（今は動的に決める）
 
     let cardBaseImage = new Image();
 
@@ -155,39 +156,36 @@
         }
 
         // ランダム効果テキスト
-        // ランダム効果テキスト
-const randomIndex      = Math.floor(Math.random() * EFFECT_PATTERNS.length);
-const randomEffectText = EFFECT_PATTERNS[randomIndex];
+        const randomIndex = Math.floor(Math.random() * EFFECT_PATTERNS.length);
+        randomEffectText  = EFFECT_PATTERNS[randomIndex];
 
-// ✨ 自動で文字サイズを調整する処理を追加
-const baseFontSize = 18; // 最初の文字サイズ
-const maxEffectHeight = 160; // 効果欄の高さ（実際の見た目に合わせて調整可）
-const adjustedFontSize = adjustFontSizeToFit(
-    ctx,
-    randomEffectText,
-    EFFECT_MAX_WIDTH,
-    maxEffectHeight,
-    baseFontSize
-);
+        // ✨ 文字サイズを自動で調整
+        const baseFontSize    = 22;   // 短いテキストのときの標準サイズ
+        const maxEffectHeight = 160;  // 効果欄の高さ
 
-ctx.fillStyle = '#000';
-ctx.font      = `${adjustedFontSize}px sans-serif`; // ←調整後の文字サイズを反映
-ctx.textAlign = 'left';
+        const fittedFontSize = adjustFontSizeToFit(
+            ctx,
+            randomEffectText,
+            EFFECT_MAX_WIDTH,
+            maxEffectHeight,
+            baseFontSize
+        );
 
-// 行の高さはフォントサイズにちょい足し（見た目調整用）
-const lineHeight = adjustedFontSize + 4;
+        const lineHeight = fittedFontSize + 4; // 行間はフォントサイズより少し大きめ
 
-// 🎯 30文字目安 ＋ 横幅制限で改行する関数を使用
-wrapTextImproved(
-    ctx,
-    randomEffectText,
-    EFFECT_X,
-    EFFECT_Y_START,
-    EFFECT_MAX_WIDTH,
-    lineHeight
-);
+        ctx.fillStyle = '#000';
+        ctx.font      = `${fittedFontSize}px sans-serif`;
+        ctx.textAlign = 'left';
 
-
+        // 右端まで来たら自然に折り返しつつ描画
+        wrapText(
+            ctx,
+            randomEffectText,
+            EFFECT_X,
+            EFFECT_Y_START,
+            EFFECT_MAX_WIDTH,
+            lineHeight
+        );
 
         // ダウンロードリンク更新
         const dataURL = cardCanvas.toDataURL('image/png');
@@ -241,69 +239,71 @@ wrapTextImproved(
         };
     }
 
-    // 🔽 効果テキストの文字サイズを自動調整する関数
-function adjustFontSizeToFit(ctx, text, maxWidth, maxHeight, baseFontSize) {
-    let fontSize = baseFontSize;
+    // 🔽 テキストを「右端で折り返し」して行配列にする
+    function getWrappedLines(ctx, text, maxWidth) {
+        const chars = text.split('');
+        const lines = [];
+        let line = '';
 
-    ctx.font = `${fontSize}px sans-serif`;
-    const lines = wrapTextToLines(ctx, text, maxWidth);
+        for (let i = 0; i < chars.length; i++) {
+            const ch = chars[i];
 
-    while ((lines.length * (fontSize + 4)) > maxHeight && fontSize > 10) {
-        fontSize -= 2;
-        ctx.font = `${fontSize}px sans-serif`;
-    }
-    return fontSize;
-}
+            // 手動改行があればそこで強制改行
+            if (ch === '\n') {
+                lines.push(line);
+                line = '';
+                continue;
+            }
 
-function wrapTextToLines(ctx, text, maxWidth) {
-    const chars = text.split('');
-    let lines = [];
-    let line = '';
+            const testLine  = line + ch;
+            const testWidth = ctx.measureText(testLine).width;
 
-    for (let i = 0; i < chars.length; i++) {
-        const testLine = line + chars[i];
-        const testWidth = ctx.measureText(testLine).width;
-
-        if (testWidth > maxWidth && line !== '') {
+            if (testWidth > maxWidth && line !== '') {
+                // これ以上入らないので一行確定
+                lines.push(line);
+                line = ch;
+            } else {
+                line = testLine;
+            }
+        }
+        if (line !== '') {
             lines.push(line);
-            line = chars[i];
-        } else {
-            line = testLine;
         }
+        return lines;
     }
-    if (line) {
-        lines.push(line);
+
+    // 🔽 効果欄の高さに収まるようにフォントサイズを自動調整
+    function adjustFontSizeToFit(ctx, text, maxWidth, maxHeight, baseFontSize) {
+        let fontSize = baseFontSize;
+
+        while (fontSize > 10) { // 最小サイズの下限
+            ctx.font = `${fontSize}px sans-serif`;
+            const lines      = getWrappedLines(ctx, text, maxWidth);
+            const lineHeight = fontSize + 4;
+            const totalHeight = lines.length * lineHeight;
+
+            if (totalHeight <= maxHeight) {
+                // 収まったらこのサイズを採用
+                return fontSize;
+            }
+            // 収まらなければ少し小さくして再チャレンジ
+            fontSize -= 2;
+        }
+        return fontSize;
     }
-    return lines;
-}
 
+    // 🔽 実際にテキストを描画する
+    function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
+        const lines = getWrappedLines(ctx, text, maxWidth);
+        let currentY = y;
 
-
-
-    // テキスト自動改行
-    function wrapTextImproved(ctx, text, x, y, maxWidth, lineHeight) {
-    const idealCharsPerLine = 30; // ←調整可能（28〜32が見やすい）
-    const words = text.split('');
-    let line = '';
-    let currentY = y;
-
-    for (let i = 0; i < words.length; i++) {
-        const testLine = line + words[i];
-        const testWidth = ctx.measureText(testLine).width;
-
-        // 🔥「横幅には収まる」かつ「30文字を超えたら」いったん改行
-        if (testWidth > maxWidth || testLine.length > idealCharsPerLine) {
+        lines.forEach(line => {
             ctx.fillText(line, x, currentY);
-            line = words[i];
             currentY += lineHeight;
-        } else {
-            line = testLine;
-        }
+        });
     }
-    ctx.fillText(line, x, currentY);
-}
 
-
+    // 戻って作り直す
     function clearAndGoBack() {
         sessionStorage.removeItem('cardName');
         sessionStorage.removeItem('originalName');
@@ -314,4 +314,3 @@ function wrapTextToLines(ctx, text, maxWidth) {
 
 </body>
 </html>
-
