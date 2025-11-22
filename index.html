@@ -12,56 +12,118 @@
             font-style: normal;
         }
 
-        /* スタイルは簡略化しています */
-        body { font-family: sans-serif; text-align: center; margin-top: 50px; background-color: #f0f2f5; }
-        .container { max-width: 600px; margin: 0 auto; padding: 30px; background-color: white; border-radius: 10px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); }
-        input[type="file"], button, input[type="text"] { padding: 10px 15px; margin: 5px 0; border-radius: 5px; border: 1px solid #ccc; font-size: 16px; }
-        button { background-color: #d83d3d; color: white; cursor: pointer; border: none; transition: background-color 0.3s ease; }
-        button:hover { background-color: #b33232; }
-        .input-group { margin-bottom: 15px; text-align: left; padding: 0 20px; }
-        .input-group label { display: block; font-weight: bold; margin-bottom: 5px; }
+        body {
+            font-family: sans-serif;
+            text-align: center;
+            margin: 0;
+            padding-top: 40px;
+            background-color: #f0f2f5;
+        }
+
+        /* 上の黄色エリア（ヒーロー） */
+        .hero-container {
+            max-width: 600px;              /* ✅ フォームと同じ幅にそろえる */
+            margin: 0 auto 40px;           /* 中央寄せ＋下に余白 */
+            padding: 30px 20px;            /* ちょいコンパクトに */
+            background: linear-gradient(135deg, #fff7b1, #ffdca8);
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            text-align: center;
+        }
+
+        .hero-title {
+            font-size: 2em;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .hero-desc {
+            font-size: 1.1em;
+            margin-bottom: 20px;
+            color: #444;
+            line-height: 1.6;
+        }
+
+        .hero-button {
+            background-color: #000;
+            color: #fff;
+            padding: 14px 28px;
+            font-size: 1.1em;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .hero-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+
+        /* 下のフォームエリア */
+        .container {
+            max-width: 600px;
+            margin: 0 auto 40px;
+            padding: 30px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        input[type="file"], button, input[type="text"] {
+            padding: 10px 15px;
+            margin: 5px 0;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            font-size: 16px;
+        }
+
+        button {
+            background-color: #d83d3d;
+            color: white;
+            cursor: pointer;
+            border: none;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #b33232;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+            text-align: left;
+            padding: 0 20px;
+        }
+
+        .input-group label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
     </style>
 </head>
 
-<div class="hero-container" style="
-    text-align: center;
-    padding: 60px 20px;
-    background: linear-gradient(135deg, #fff7b1, #ffdca8);
-    border-radius: 10px;
-    margin-bottom: 40px;
-">
-    <h1 style="font-size: 2.4em; margin-bottom: 10px; color: #333;">
-        🪄 あなたがサポートカードになったら…？
-    </h1>
-    <p style="font-size: 1.2em; margin-bottom: 20px; color: #444; line-height: 1.6;">
-        画像を選んで、カード名を入れるだけで<br>
-        あなただけのポケカ風サポートカードが完成✨
-    </p>
-
-    <button
-    type="button"
-    onclick="document.getElementById('form-area').scrollIntoView({ behavior: 'smooth' });"
-    style="
-        background-color: #000;
-        color: #fff;
-        padding: 14px 28px;
-        font-size: 1.2em;
-        border: none;
-        border-radius: 6px;
-        cursor: pointer;
-        transition: transform 0.2s ease;
-    "
-    onmouseover="this.style.transform='scale(1.05)'"
-    onmouseout="this.style.transform='scale(1)'"
->
-    🪄 今すぐカードを作ってみる
-</button>
-
-</div>
-
-    
 <body>
 
+    <!-- 🟡 ヒーローエリア（幅600pxに揃え済み） -->
+    <div class="hero-container">
+        <h1 class="hero-title">🪄 あなたがサポートカードになったら…？</h1>
+        <p class="hero-desc">
+            画像を選んで、カード名を入れるだけで<br>
+            あなただけのポケカ風サポートカードが完成✨
+        </p>
+
+        <button
+            type="button"
+            class="hero-button"
+            onclick="document.getElementById('form-area').scrollIntoView({ behavior: 'smooth' });"
+        >
+            🪄 今すぐカードを作ってみる
+        </button>
+    </div>
+
+    <!-- 🔽 入力フォームエリア -->
     <div id="form-area" class="container">
         <h1>あなたがあのポケカのサポートに？！</h1>
         <p><strong>✨ポケカ風サポートメーカー✨</strong><br>
@@ -71,23 +133,23 @@
         </p>
 
         <div style="font-size: 1em; margin-bottom: 25px; line-height: 1.6; color: #555;">
-        🔹 思わず仲間に配りたくなっちゃう！？🎁<br>
-        🔹 推しをカードにして遊でみる？💖<br>
-        🔹 Xでシェアしてみんなで盛り上がろう！✨
+            🔹 思わず仲間に配りたくなっちゃう！？🎁<br>
+            🔹 推しをカードにして遊でみる？💖<br>
+            🔹 Xでシェアしてみんなで盛り上がろう！✨
         </div>
 
         <p style="margin-top: 10px;">
             使い方はかんたん 3ステップ👇
         </p>
         <ol style="text-align: left; display: inline-block; margin: 0 auto 10px;">
-          <li>プロフィール画像など、好きな画像をアップロード</li>
-          <li>カード名に「名前」や「@ID」を入力</li>
-          <li>完成したカードを保存して、そのままXにポスト！</li>
+            <li>プロフィール画像など、好きな画像をアップロード</li>
+            <li>カード名に「名前」や「@ID」を入力</li>
+            <li>完成したカードを保存して、そのままXにポスト！</li>
         </ol>
 
         <p>
-          挨拶ツイートに貼ったり、固定ポストに置いたり、<br>
-          ハッシュタグ <strong>#ポケカ風サポートメーカー</strong> でみんなのカードも覗いてみてね👀✨
+            挨拶ツイートに貼ったり、固定ポストに置いたり、<br>
+            ハッシュタグ <strong>#ポケカ風サポートメーカー</strong> でみんなのカードも覗いてみてね👀✨
         </p>
 
         <div class="input-group">
@@ -104,100 +166,54 @@
     </div>
 
     <script>
-    const profileImageInput = document.getElementById('profileImageInput');
-    const cardNameInput = document.getElementById('cardNameInput');
+        const profileImageInput = document.getElementById('profileImageInput');
+        const cardNameInput = document.getElementById('cardNameInput');
 
-    // ▼ ランダムで付与する「の〇〇」候補
-    const NAME_SUFFIXES = [
-        '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',       // ← 無印（付けない）を増やすほど出やすくなる
-        'の指令',
-        'の決心',
-        'の闘志',
-        'の一手',
-        'のいたずら',
-        'の取引',
-        'の思いやり',
-        'の筋書き',
-        'の研究',
-        'の冒険',
-        'の盛り上げ',
-        'のシナリオ',
-        'の気迫',
-        'の手際',
-        'の執念',
-        'の秘技',
-        'のお世話',
-        'の確信',
-        'の機転',
-        'のアピール',
-        'のまなざし',
-        'のたくらみ',
-        'のまごころ',
-        'のしたっぱ',
-        'の仲間たち',
-        'のカリスマ',
-        'の招待',
-        'の手助け',
-    ];
+        // ▼ ランダムで付与する「の〇〇」候補
+        const NAME_SUFFIXES = [
+            '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',
+            '', '', '', '', '', '', '', '',
+            'の指令','の決心','の闘志','の一手','のいたずら','の取引','の思いやり','の筋書き',
+            'の研究','の冒険','の盛り上げ','のシナリオ','の気迫','の手際','の執念','の秘技',
+            'のお世話','の確信','の機転','のアピール','のまなざし','のたくらみ','のまごころ',
+            'のしたっぱ','の仲間たち','のカリスマ','の招待','の手助け',
+        ];
 
-    // ▼ 入力された名前からランダムでカード名を生成
-    function generateCardName(baseName) {
-        const trimmedName = baseName.trim();
-        if (!trimmedName) return '';
-
-        const suffix = NAME_SUFFIXES[Math.floor(Math.random() * NAME_SUFFIXES.length)];
-        return trimmedName + suffix;
-    }
-
-    function createCard() {
-        const baseName = cardNameInput.value.trim();
-        const profileFile = profileImageInput.files[0];
-
-        // 1. バリデーションチェック
-        if (!profileFile) {
-            alert("プロフィール画像をアップロードしてください。");
-            return;
+        function generateCardName(baseName) {
+            const trimmedName = baseName.trim();
+            if (!trimmedName) return '';
+            const suffix = NAME_SUFFIXES[Math.floor(Math.random() * NAME_SUFFIXES.length)];
+            return trimmedName + suffix;
         }
 
-        if (baseName === "") {
-            alert("（Xアカウント名）を入力してください。");
-            return;
+        function createCard() {
+            const baseName = cardNameInput.value.trim();
+            const profileFile = profileImageInput.files[0];
+
+            if (!profileFile) {
+                alert("プロフィール画像をアップロードしてください。");
+                return;
+            }
+
+            if (baseName === "") {
+                alert("（Xアカウント名）を入力してください。");
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const imageDataURL = e.target.result;
+                const finalCardName = generateCardName(baseName);
+
+                sessionStorage.setItem('cardName', finalCardName);
+                sessionStorage.setItem('originalName', baseName);
+                sessionStorage.setItem('imageDataURL', imageDataURL);
+
+                window.location.href = 'result.html';
+            };
+            reader.readAsDataURL(profileFile);
         }
-
-        // 2. 画像ファイルをData URLとして読み込む
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            const imageDataURL = e.target.result;
-
-            // ★ ここでカード名を加工して保存！
-            const finalCardName = generateCardName(baseName);
-
-            // 3. データをブラウザのセッションストレージに一時保存
-            sessionStorage.setItem('cardName', finalCardName);
-            sessionStorage.setItem('originalName', baseName); 
-            sessionStorage.setItem('imageDataURL', imageDataURL);
-            
-            // 4. 結果画面へ遷移
-            window.location.href = 'result.html';
-        };
-        
-        // ファイルを読み込み開始
-        reader.readAsDataURL(profileFile);
-    }
-</script>
-
+    </script>
 
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
