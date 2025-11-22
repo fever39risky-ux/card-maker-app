@@ -44,7 +44,10 @@
         🔹 Xでシェアしてみんなで盛り上がろう！！
     </div>
 
-    <button onclick="document.getElementById('form-area').scrollIntoView({behavior:'smooth'});" style="
+    <button
+    type="button"
+    onclick="document.getElementById('form-area').scrollIntoView({ behavior: 'smooth' });"
+    style="
         background-color: #000;
         color: #fff;
         padding: 14px 28px;
@@ -53,16 +56,20 @@
         border-radius: 6px;
         cursor: pointer;
         transition: transform 0.2s ease;
-    " onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
-        🚀 今すぐカードを作ってみる
-    </button>
+    "
+    onmouseover="this.style.transform='scale(1.05)'"
+    onmouseout="this.style.transform='scale(1)'"
+>
+    🪄 今すぐカードを作ってみる
+</button>
+
 </div>
 
     
 <body>
 
-    <div class="container">
-        <h1>あなたがあのポケカのサポートカードに？！</h1>
+    <div id="form-area" class="container">
+        <h1>あなたがあのポケカのサポートに？！</h1>
         <p><strong>✨ポケカ風サポートメーカー✨</strong><br>
             お気に入り画像を使って、TLに流せる自分だけのカードを作ろう！
         </p>
@@ -180,6 +187,7 @@
 
 </body>
 </html>
+
 
 
 
