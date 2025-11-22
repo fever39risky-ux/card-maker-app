@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>サポートカードメーカー (入力)</title>
+    <title>ポケカ風サポートメーカー</title>
     <style>
         /* フォントファイルを読み込む設定 (変更なし) */
         @font-face {
@@ -25,8 +25,24 @@
 <body>
 
     <div class="container">
-        <h1>🃏 サポートカードメーカー 🃏</h1>
-        <p class="info-text">画像とカード名を入力し、結果画面へ遷移します。</p>
+        <h1>🃏 ポケカ風サポートメーカー 🃏</h1>
+        <p>あなたのアイコンが、1枚の<strong>サポートカード</strong>に進化します。<br>
+            推しポイントや雰囲気を詰め込んで、タイムラインに流せる“自己紹介カード”を作ろう！
+        </p>
+
+        <p style="margin-top: 10px;">
+            使い方はかんたん 3ステップ👇
+        </p>
+        <ol style="text-align: left; display: inline-block; margin: 0 auto 10px;">
+          <li>プロフィール画像など、好きな画像をアップロード</li>
+          <li>カード名に「名前」や「@ID」を入力</li>
+          <li>結果画面でカード画像を保存して、そのままXにポスト！</li>
+        </ol>
+
+        <p>
+          フォロワーさんとの挨拶用に使ったり、自己紹介スレに貼ったり、<br>
+          <strong>#ポケカ風サポートメーカー</strong> でみんなのカードも見てみてね 🃏✨
+        </p>
 
         <div class="input-group">
             <label for="profileImageInput">1. あなたのプロフィール画像をアップロードしてください:</label>
@@ -39,7 +55,7 @@
             <input type="text" id="cardNameInput" value="" placeholder="Xアカウント名を入力" style="width: 90%;">
         </div>
         
-        <button onclick="createCard()">結果画面へ移動！</button>
+        <button onclick="createCard()">作成</button>
     </div>
 
     <script>
@@ -81,3 +97,4 @@
 
 </body>
 </html>
+
