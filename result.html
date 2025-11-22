@@ -256,22 +256,27 @@ function adjustFontSizeToFit(ctx, text, maxWidth, maxHeight, baseFontSize) {
 }
 
 function wrapTextToLines(ctx, text, maxWidth) {
-    const words = text.split(/(\s+)/); // ←空白も保持して分割
+    const chars = text.split('');
     let lines = [];
     let line = '';
 
-    words.forEach(word => {
-        const testLine = line + word;
-        if (ctx.measureText(testLine).width > maxWidth && line !== '') {
+    for (let i = 0; i < chars.length; i++) {
+        const testLine = line + chars[i];
+        const testWidth = ctx.measureText(testLine).width;
+
+        if (testWidth > maxWidth && line !== '') {
             lines.push(line);
-            line = word;
+            line = chars[i];
         } else {
             line = testLine;
         }
-    });
-    lines.push(line);
+    }
+    if (line) {
+        lines.push(line);
+    }
     return lines;
 }
+
 
 
 
@@ -309,3 +314,4 @@ function wrapTextToLines(ctx, text, maxWidth) {
 
 </body>
 </html>
+
