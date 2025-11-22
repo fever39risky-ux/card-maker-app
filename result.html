@@ -39,11 +39,28 @@
 <body onload="drawResultCard()">
 
     <div class="container">
-        <h1>✅ 完成しました！</h1>
-        <p>画像を右クリックまたはダウンロードボタンから保存してください。</p>
+        <h1>✅ 完成！✨</h1>
+        <p>画像はダウンロードボタンから保存ができます。</p>
+	<p>Xにポストしてみんなに見てもらおう！！</p>
         
         <canvas id="cardCanvas"></canvas>
         <a id="downloadLink" href="#" download="my_original_card.png">画像をダウンロード</a>
+
+	<button id="shareButton" style="
+        background-color: #000; 
+        color: white; 
+        padding: 10px 20px; 
+        border-radius: 5px; 
+        font-size: 1.1em;
+        margin-top: 15px;
+        border: none;
+        cursor: pointer;
+    ">
+        <svg viewBox="0 0 24 24" aria-hidden="true" style="fill: white; height: 1.2em; width: 1.2em; vertical-align: middle; margin-right: 5px;">
+            <g><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.717 6.231zm-1.164 16.597h1.408L7.096 3.99H5.50L17.08 18.847z"></path></g>
+        </svg>
+        Xでシェア！(Web Intent)
+    </button>
         
         <p style="margin-top: 30px;"><a href="card_maker.html">← 戻って作り直す</a></p>
     </div>
