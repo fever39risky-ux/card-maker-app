@@ -223,7 +223,9 @@
     // ④ X投稿ボタンの挙動
     function setupShareButton(imageUrl) {
         shareButton.onclick = () => {
-            const appURL = 'https://bit.ly/48uU5MK';
+
+            const originalPost = 'https://x.com/KinoshitaTsks/status/1992371860118647179';
+            const appURL = `https://twitter.com/share?url=${encodeURIComponent(originalPost)}`;
 
             const shareText =
                 `🎉 ポケカ風のサポートカードが簡単に作れちゃう！！\n` +
@@ -315,6 +317,7 @@
 
 </body>
 </html>
+
 
 
 
