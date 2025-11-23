@@ -223,13 +223,14 @@
     // ④ X投稿ボタンの挙動
     function setupShareButton(imageUrl) {
         shareButton.onclick = () => {
-            const appURL = 'https://fever39risky-ux.github.io/card-maker-app/';
+            const appURL = 'https://twitter.com/KinoshitaTsks/status/1992371860118647179';
 
             const shareText =
                 `🎉 ポケカ風のサポートカードが簡単に作れちゃう！！\n` +
                 `${originalName}さんがサポートカードになったら？\n\n` +
                 `『 カード名: ${cardName} 』\n` +
                 (imageUrl ? `🖼 カード画像をみてみる👇\n${imageUrl}\n\n` : ``) +
+                `🔽 あなたも作る 🔽\n${appURL}\n\n` +
                 `#ポケカ風サポートメーカー`;
 
             const twitterUrl =
@@ -314,4 +315,5 @@
 
 </body>
 </html>
+
 
